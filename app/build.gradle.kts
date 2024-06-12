@@ -71,6 +71,7 @@ dependencies {
     implementation(libs.lifecycle.runtime.compose)
     implementation(libs.lifecycle.livedata.ktx)
     implementation(libs.navigation.compose)
+    implementation(libs.coil.compose)
 
 
 }
