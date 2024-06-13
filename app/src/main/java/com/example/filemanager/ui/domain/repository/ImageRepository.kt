@@ -7,10 +7,23 @@ import android.provider.MediaStore
 import android.util.Log
 import com.example.filemanager.ui.domain.model.FolderModel
 import com.example.filemanager.ui.domain.model.ImageModel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 class ImageRepository(val context: Context) {
 
-    fun fetchImages(): MutableList<FolderModel> {
+    fun getPhotosFlow(pageSize: Int):Flow<List<FolderModel>> = flow {
+        var offset=0
+
+        while (true) {
+            val folders = getFolderWithPhotos(offset,pageSize)
+            if(folders.isEmpty()) break
+            emit(folders)
+            offset += pageSize
+        }
+    }
+
+    fun getFolderWithPhotos(offset: Int, limit: Int): List<FolderModel> {
         val projection = arrayOf(
             MediaStore.Images.Media._ID,
             MediaStore.Images.Media.DISPLAY_NAME,
@@ -18,14 +31,13 @@ class ImageRepository(val context: Context) {
             MediaStore.Images.Media.DATE_ADDED
         )
 
-        val sortOrder = "${MediaStore.Images.Media.DATE_ADDED} DESC"
+        val sortOrder = "${MediaStore.Images.Media.DATE_ADDED} DESC LIMIT $limit OFFSET $offset"
 
         val cursor = context.contentResolver.query(
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, null, null, sortOrder
         )
 
-//        val imageFolders = mutableMapOf<String, MutableList<ImageModel>>()
-        val imageFolders = mutableListOf<FolderModel>()
+        val folderMap = mutableMapOf<String, MutableList<ImageModel>>()
 
         cursor?.use {
             val idColumn = it.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
@@ -43,30 +55,13 @@ class ImageRepository(val context: Context) {
                 val image = ImageModel(id, name, bucket, uri)
 
 
-                var folder = imageFolders.find {
-                    it.folderName == bucket
+                if (!folderMap.containsKey(bucket)) {
+                    folderMap[bucket] = mutableListOf()
                 }
-
-                if (folder == null) {
-                    imageFolders.add(FolderModel(bucket))
-                }
-//                if (!imageFolders.containsKey(bucket)) {
-//                    imageFolders[bucket] = mutableListOf()
-//                }
-                val bucketIndex = imageFolders.indexOf(folder)
-
-                try {
-                    Log.e("TAG", "fetchImages: $bucketIndex $bucket $imageFolders $folder")
-                    imageFolders[bucketIndex].documentList!!.add(image)
-
-                }catch (e:Exception)
-                {
-                    Log.e("Error", "fetchImages: ====== $bucketIndex", )
-                }
-
+                folderMap[bucket]?.add(image)
             }
         }
 
-        return imageFolders
+        return  folderMap.map { FolderModel(it.key, it.value) }
     }
 }

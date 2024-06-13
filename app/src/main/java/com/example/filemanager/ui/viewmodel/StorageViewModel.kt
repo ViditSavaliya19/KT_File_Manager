@@ -10,26 +10,38 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.filemanager.ui.App
 import com.example.filemanager.ui.domain.model.FolderModel
 import com.example.filemanager.ui.domain.model.ImageModel
 import com.example.filemanager.ui.domain.repository.ImageRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 class StorageViewModel(val context: Context) : ViewModel() {
     var permissionGranted = MutableLiveData<Boolean>(false)
     val imageRepository = ImageRepository(context)
-    private val  _imageData = MutableLiveData <List<FolderModel>>()
-    val  imageData: LiveData<List<FolderModel>> = _imageData
+    private val _imageData = MutableStateFlow<List<FolderModel>>(
+        emptyList()
+    )
+    val imageData: StateFlow<List<FolderModel>> = _imageData
 
     init {
         permissionGranted.value = checkPermissionStatus()
-        permissionGranted.observeForever {
-            if (it) {
-                Log.e("ReadStorage", "imageRepository==============")
-                _imageData.value = imageRepository.fetchImages()
-                Log.e("ReadStorage", "imageRepository:  $imageData")
-            } else {
-                requestPermission()
+        if (permissionGranted.value == true) {
+            loadPhotos()
+        } else {
+            requestPermission()
+        }
+    }
+
+    fun loadPhotos() {
+        viewModelScope.launch {
+            imageRepository.getPhotosFlow(20).collect {
+                _imageData.value += it
+
+                Log.e("TAG", "loadPhotos: $it")
             }
         }
     }

@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.rememberNavController
 import com.example.filemanager.ui.screen.NavScreen
@@ -14,11 +15,12 @@ import com.example.filemanager.ui.viewmodel.StorageViewModelFactory
 
 class MainActivity : ComponentActivity() {
 
-    private lateinit var storageViewModel: StorageViewModel
+    private  val storageViewModel: StorageViewModel by viewModels {
+        StorageViewModelFactory(this)
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        storageViewModel = ViewModelProvider(this, StorageViewModelFactory(this))[StorageViewModel::class.java]
 
         setContent {
             val navController = rememberNavController()
