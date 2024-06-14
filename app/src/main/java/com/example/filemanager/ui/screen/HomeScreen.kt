@@ -3,17 +3,24 @@ package com.example.filemanager.ui.screen
 import android.annotation.SuppressLint
 import android.content.Context
 import android.icu.text.CaseMap.Fold
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -23,6 +30,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -31,6 +39,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -49,36 +58,44 @@ import com.example.filemanager.ui.viewmodel.StorageViewModel
 fun HomeScreen(
     navController: NavHostController, storageViewModel: StorageViewModel, context: Context
 ) {
+
     val imageData = storageViewModel.imageData.collectAsState()
 
 
 
     Scaffold(topBar = { TopAppBar(title = { Text("KT File's") }) }) {
-//        LazyColumn(Modifier.padding(top = 60.dp)) {
-//            items(imageData.value) {
-//                FolderItem(folder = it)
+
+
+//        LazyColumn(modifier = Modifier.padding(top = 60.dp, start = 16.dp, end = 16.dp, bottom = 16.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+//            imageData.value.forEach { section ->
+//                item {
+//                    SectionHeader(title = section.folderName)
+//                    Spacer(modifier = Modifier.height(8.dp))
+//                }
+//                items(section.documentList.chunked(3)) { rowItems ->
+//                    Row(modifier = Modifier.fillMaxWidth(),) {
+//                        rowItems.forEach { item ->
+//                            PhotoItem(item)
+//                        }
+//                        if (rowItems.size < 2) {
+//                            Spacer(modifier = Modifier.weight(1f))
+//                        }
+//                    }
+//                    Spacer(modifier = Modifier.height(8.dp))
+//                }
 //            }
 //        }
 
-        LazyColumn(modifier = Modifier.padding(top = 60.dp, start = 16.dp, end = 16.dp, bottom = 16.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-            imageData.value.forEach { section ->
-                item {
-                    SectionHeader(title = section.folderName)
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-                items(section.documentList.chunked(3)) { rowItems ->
-                    Row(modifier = Modifier.fillMaxWidth(),) {
-                        rowItems.forEach { item ->
-                            PhotoItem(item)
-                        }
-                        if (rowItems.size < 2) {
-                            Spacer(modifier = Modifier.weight(1f))
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(8.dp))
+        LazyVerticalGrid(
+            modifier = Modifier.fillMaxSize(),
+            columns = GridCells.Fixed(3),
+            content = {
+                items(items = imageData.value)
+                { (folder, photos) ->
+                    FolderItem(folder, photos)
                 }
             }
-        }
+        )
 
     }
 
@@ -95,10 +112,10 @@ fun SectionHeader(title: String) {
 
 @Composable
 fun FolderItem(folder: FolderModel) {
-    Column {
+    Column(modifier = Modifier.fillMaxWidth()) {
         Text(text = folder.folderName, style = MaterialTheme.typography.bodyLarge)
-        LazyRow(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
-            items(folder.documentList) { photo ->
+        Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
+            folder.documentList.map { photo ->
                 PhotoItem(photo)
             }
         }
@@ -118,4 +135,19 @@ fun PhotoItem(photo: ImageModel) {
         contentScale = ContentScale.Crop
     )
 
+}
+
+@Composable
+fun FolderItem(folder: String, photos: List<ImageModel>) {
+    Column(modifier = Modifier.padding(8.dp)) {
+        Text(text = folder, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(3),
+            content = {
+                items(photos) { photo ->
+                    PhotoItem(photo = photo)
+                }
+            }
+        )
+    }
 }

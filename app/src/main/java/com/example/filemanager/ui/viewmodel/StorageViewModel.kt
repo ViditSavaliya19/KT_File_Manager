@@ -15,9 +15,11 @@ import com.example.filemanager.ui.App
 import com.example.filemanager.ui.domain.model.FolderModel
 import com.example.filemanager.ui.domain.model.ImageModel
 import com.example.filemanager.ui.domain.repository.ImageRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class StorageViewModel(val context: Context) : ViewModel() {
     var permissionGranted = MutableLiveData<Boolean>(false)
@@ -26,6 +28,8 @@ class StorageViewModel(val context: Context) : ViewModel() {
         emptyList()
     )
     val imageData: StateFlow<List<FolderModel>> = _imageData
+
+
 
     init {
         permissionGranted.value = checkPermissionStatus()
@@ -38,11 +42,15 @@ class StorageViewModel(val context: Context) : ViewModel() {
 
     fun loadPhotos() {
         viewModelScope.launch {
-            imageRepository.getPhotosFlow(20).collect {
-                _imageData.value += it
+            withContext(Dispatchers.IO)
+            {
+                imageRepository.getPhotosFlow(20).collect {
+                    _imageData.value += it
 
-                Log.e("TAG", "loadPhotos: $it")
+                    Log.e("TAG", "loadPhotos: $it")
+                }
             }
+
         }
     }
 
