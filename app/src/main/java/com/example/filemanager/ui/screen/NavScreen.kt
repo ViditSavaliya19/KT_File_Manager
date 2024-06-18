@@ -19,6 +19,10 @@ fun NavScreen(
             {
                 HomeScreen(navController,storageViewModel,context)
             }
+            composable("Image")
+            {
+                ImageScreen(navController,storageViewModel,context)
+            }
 
         }
 
