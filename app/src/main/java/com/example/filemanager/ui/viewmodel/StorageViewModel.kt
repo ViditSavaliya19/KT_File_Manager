@@ -52,8 +52,14 @@ class StorageViewModel(val context: Context) : ViewModel() {
     init {
         permissionGranted.value = checkPermissionStatus()
         if (permissionGranted.value == true) {
-//            loadPhotos()
-            loadStorage()
+            viewModelScope.launch {
+                launch {
+                    loadPhotos()
+                }
+                launch {
+                    loadStorage()
+                }
+            }
 
         } else {
             requestPermission()
@@ -76,32 +82,32 @@ class StorageViewModel(val context: Context) : ViewModel() {
     @SuppressLint("InlinedApi")
     fun loadStorage() {
         viewModelScope.launch {
-            launch{
-                Log.e("TAG", "loadStorage: Launch 1" )
+            launch {
+                Log.e("TAG", "loadStorage: Launch 1")
                 _audioList.value = FileManager.getInstance(context).fetchStorage(
                     MediaStore.Files.FileColumns.MEDIA_TYPE_AUDIO,
                 )
             }
             launch {
-                Log.e("TAG", "loadStorage: Launch 2" )
+                Log.e("TAG", "loadStorage: Launch 2")
                 _documentList.value = FileManager.getInstance(context).fetchStorage(
                     MediaStore.Files.FileColumns.MEDIA_TYPE_DOCUMENT,
                 )
             }
             launch {
-                Log.e("TAG", "loadStorage: Launch 3" )
+                Log.e("TAG", "loadStorage: Launch 3")
                 _videoList.value = FileManager.getInstance(context).fetchStorage(
                     MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO,
                 )
             }
             launch {
-                Log.e("TAG", "loadStorage: Launch 4" )
+                Log.e("TAG", "loadStorage: Launch 4")
                 _noneList.value = FileManager.getInstance(context).fetchStorage(
                     MediaStore.Files.FileColumns.MEDIA_TYPE_NONE,
                 )
             }
             launch {
-                Log.e("TAG", "loadStorage: Launch 5" )
+                Log.e("TAG", "loadStorage: Launch 5")
                 _imageList.value = FileManager.getInstance(context).fetchStorage(
                     MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE,
                 )

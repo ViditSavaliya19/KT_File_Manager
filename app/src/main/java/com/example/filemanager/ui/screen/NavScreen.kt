@@ -23,6 +23,10 @@ fun NavScreen(
             {
                 ImageScreen(navController,storageViewModel,context)
             }
+            composable("Documents")
+            {
+                DocumentScreen(navController,storageViewModel,context)
+            }
 
         }
 
