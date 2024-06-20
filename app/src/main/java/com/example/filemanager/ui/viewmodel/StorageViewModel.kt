@@ -14,6 +14,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.filemanager.ui.App
+import com.example.filemanager.ui.domain.model.DataModel
 import com.example.filemanager.ui.domain.model.FolderModel
 import com.example.filemanager.ui.domain.model.ImageModel
 import com.example.filemanager.ui.domain.model.StorageModel
@@ -30,17 +31,17 @@ class StorageViewModel(val context: Context) : ViewModel() {
     val imageRepository = ImageRepository(context)
 
 
-    private var _documentList = MutableLiveData<List<StorageModel>>()
-    private var _audioList = MutableLiveData<List<StorageModel>>()
-    private var _videoList = MutableLiveData<List<StorageModel>>()
-    private var _noneList = MutableLiveData<List<StorageModel>>()
-    private var _imageList = MutableLiveData<List<StorageModel>>()
+    private var _documentList = MutableLiveData<Map<String, MutableList<DataModel>>>()
+    private var _audioList = MutableLiveData<Map<String, MutableList<DataModel>>>()
+    private var _videoList = MutableLiveData<Map<String, MutableList<DataModel>>>()
+    private var _noneList = MutableLiveData<Map<String, MutableList<DataModel>>>()
+    private var _imageList = MutableLiveData<Map<String, MutableList<DataModel>>>()
 
-    val documentList: LiveData<List<StorageModel>> = _documentList
-    val audioList: LiveData<List<StorageModel>> = _audioList
-    val videoList: LiveData<List<StorageModel>> = _videoList
-    val noneList: LiveData<List<StorageModel>> = _noneList
-    val imageList: LiveData<List<StorageModel>> = _imageList
+    val documentList: LiveData<Map<String, MutableList<DataModel>>> = _documentList
+    val audioList: LiveData<Map<String, MutableList<DataModel>>> = _audioList
+    val videoList: LiveData<Map<String, MutableList<DataModel>>> = _videoList
+    val noneList: LiveData<Map<String, MutableList<DataModel>>> = _noneList
+    val imageList: LiveData<Map<String, MutableList<DataModel>>> = _imageList
 
 
     private val _imageData = MutableStateFlow<List<FolderModel>>(

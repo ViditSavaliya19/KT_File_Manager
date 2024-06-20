@@ -1,6 +1,10 @@
 package com.example.filemanager.ui.domain.model
 
 data class StorageModel(
+    val bucketName: String,
+    var dataList: List<DataModel>
+)
+data class DataModel(
     val fileId: Long?=null,
     val fileName: String?= null,
     val filePath: String?=null,

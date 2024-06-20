@@ -4,6 +4,7 @@ import android.content.ContentResolver
 import android.content.Context
 import android.provider.MediaStore
 import android.util.Log
+import com.example.filemanager.ui.domain.model.DataModel
 import com.example.filemanager.ui.domain.model.StorageModel
 import okhttp3.MediaType
 
@@ -55,7 +56,7 @@ class FileManager(context: Context) {
 
 
 
-    suspend  fun fetchStorage(mediaType: Int): MutableList<StorageModel> {
+    suspend  fun fetchStorage(mediaType: Int): MutableMap<String, MutableList<DataModel>> {
 
         var dataList = mutableListOf<StorageModel>()
 //        var documentList = mutableListOf<StorageModel>()
@@ -73,6 +74,8 @@ class FileManager(context: Context) {
             sortOrder
         )
 
+        var dataMap = mutableMapOf<String, MutableList<DataModel>>()
+
         cursor?.use { cursor ->
             while (cursor.moveToNext()) {
                 val fileId = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID))
@@ -88,7 +91,7 @@ class FileManager(context: Context) {
                 val dateModified = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_MODIFIED))
                 val mediaType = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MEDIA_TYPE))
 
-                var model = StorageModel(
+                var model = DataModel(
                     title = title,
                     fileId = fileId,
                     fileName = fileName,
@@ -103,32 +106,18 @@ class FileManager(context: Context) {
                     mediaType = mediaType,
                 )
 
-//                when (mediaType) {
-//
-//                    "${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE}" -> {
-//                        imageList.add(model)
-//                    }
-//                    "${MediaStore.Files.FileColumns.MEDIA_TYPE_AUDIO}" -> {
-//                        audioList.add(model)
-//                    }
-//                    "${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO}" -> {
-//                        videoList.add(model)
-//                    }
-//                    "${MediaStore.Files.FileColumns.MEDIA_TYPE_DOCUMENT}" -> {
-//                        documentList.add(model)
-//                    }
-//                    else -> {
-//                        noneList.add(model)
-//                    }
-//                }
 
-                dataList.add(model)
+                if (dataMap.containsKey(bucketName)) {
+                    dataMap[bucketName]?.add(model)
+                } else {
+                    dataMap[bucketName] = mutableListOf(model)
+                }
 
             }
 
         }
 
-        return dataList
+        return dataMap
     }
 }
 /*
