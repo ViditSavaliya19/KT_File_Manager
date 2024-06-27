@@ -71,7 +71,8 @@ fun HomeScreen(
         Column(
             Modifier
                 .padding(it)
-                .verticalScroll(rememberScrollState())) {
+                .verticalScroll(rememberScrollState())
+        ) {
             Text(text = "Recent", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(10.dp))
             LazyRow {
@@ -100,7 +101,10 @@ fun HomeScreen(
                     size = "1 GB",
                     icon = Icons.Outlined.Description,
                     modifier = Modifier.weight(1f)
-                )
+                ) {
+                    navController.navigate("Documents")
+                }
+
             }
             Spacer(modifier = Modifier.height(10.dp))
             Row {
@@ -109,14 +113,20 @@ fun HomeScreen(
                     size = "22 MB",
                     icon = Icons.Outlined.MusicNote,
                     modifier = Modifier.weight(1f)
-                )
+                ) {
+                    navController.navigate("Documents")
+                }
+
                 Spacer(modifier = Modifier.width(10.dp))
                 CategoryItem(
                     title = "Videos",
                     size = "1 GB",
                     icon = Icons.Outlined.Videocam,
                     modifier = Modifier.weight(1f)
-                )
+                ) {
+                    navController.navigate("Documents")
+                }
+
             }
             Spacer(modifier = Modifier.height(10.dp))
             Row {
@@ -125,14 +135,20 @@ fun HomeScreen(
                     size = "22 MB",
                     icon = Icons.Outlined.Photo,
                     modifier = Modifier.weight(1f)
-                )
+                ) {
+                    navController.navigate("Documents")
+                }
+
                 Spacer(modifier = Modifier.width(10.dp))
                 CategoryItem(
                     title = "Apps",
                     size = "1 GB",
                     icon = Icons.Outlined.Apps,
                     modifier = Modifier.weight(1f)
-                )
+                ) {
+                    navController.navigate("Documents")
+                }
+
 
             }
 
@@ -182,14 +198,11 @@ fun HomeScreen(
 
 @Composable
 fun RecentItem(
-    modifier: Modifier = Modifier,
-    folder: FolderModel,
-    navController: NavHostController
+    modifier: Modifier = Modifier, folder: FolderModel, navController: NavHostController
 ) {
     Column {
         Box(
-            Modifier
-                .clip(RoundedCornerShape(10.dp))
+            Modifier.clip(RoundedCornerShape(10.dp))
         ) {
             Column {
                 Row {
@@ -224,9 +237,7 @@ fun ShowImage(folder: FolderModel, index: Int, navController: NavHostController)
 fun FolderPhotoItem(photo: ImageModel? = null, navController: NavHostController) {
     AsyncImage(
         placeholder = painterResource(id = R.drawable.folder),
-        model = ImageRequest.Builder(LocalContext.current)
-            .data(photo?.uri)
-            .error(R.drawable.folder)
+        model = ImageRequest.Builder(LocalContext.current).data(photo?.uri).error(R.drawable.folder)
             .crossfade(true).build(),
         contentDescription = "",
         modifier = Modifier
@@ -243,7 +254,7 @@ fun FolderPhotoItem(photo: ImageModel? = null, navController: NavHostController)
 @Composable
 fun CategoryItem(
     title: String,
-    size: String?= null,
+    size: String? = null,
     icon: ImageVector,
     modifier: Modifier = Modifier,
     click: () -> Unit = {}
@@ -257,8 +268,7 @@ fun CategoryItem(
             .background(color = Color.White)
             .clickable {
                 click.invoke()
-            },
-        contentAlignment = Alignment.Center
+            }, contentAlignment = Alignment.Center
     ) {
 
         Row(
@@ -268,11 +278,20 @@ fun CategoryItem(
                 .fillMaxWidth()
                 .padding(start = 20.dp)
         ) {
-            Icon(icon, contentDescription = title, tint = Color.Black, modifier = Modifier.size(20.dp))
+            Icon(
+                icon,
+                contentDescription = title,
+                tint = Color.Black,
+                modifier = Modifier.size(20.dp)
+            )
             Spacer(modifier = Modifier.width(10.dp))
             Column {
                 Text(title, style = MaterialTheme.typography.titleSmall)
-                size?.let { Text(it, style = MaterialTheme.typography.labelSmall.copy(color = Color.Gray)) }
+                size?.let {
+                    Text(
+                        it, style = MaterialTheme.typography.labelSmall.copy(color = Color.Gray)
+                    )
+                }
             }
         }
 

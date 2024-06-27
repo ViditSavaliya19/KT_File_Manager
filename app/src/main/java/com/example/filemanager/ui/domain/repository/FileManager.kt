@@ -47,16 +47,14 @@ class FileManager(context: Context) {
         MediaStore.Files.FileColumns.MEDIA_TYPE,
 
 
-    )
+        )
 
-    val selection = MediaStore.Files.FileColumns.MEDIA_TYPE + " = ?" // Optional: Add a selection clause if needed
+    val selection =
+        MediaStore.Files.FileColumns.MEDIA_TYPE + " = ?" // Optional: Add a selection clause if needed
     val sortOrder = null // Optional: Specify sorting order
 
 
-
-
-
-    suspend  fun fetchStorage(mediaType: Int): MutableMap<String, MutableList<DataModel>> {
+     fun fetchStorage(mediaType: Int): MutableMap<String, MutableList<DataModel>> {
 
         var dataList = mutableListOf<StorageModel>()
 //        var documentList = mutableListOf<StorageModel>()
@@ -76,47 +74,62 @@ class FileManager(context: Context) {
 
         var dataMap = mutableMapOf<String, MutableList<DataModel>>()
 
-        cursor?.use { cursor ->
-            while (cursor.moveToNext()) {
-                val fileId = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID))
-                val fileName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME))
-                val filePath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA))
-                val bucketName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.BUCKET_DISPLAY_NAME))
-                val bucketID = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.BUCKET_ID))
-                val mimeType = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE))
-                val resolution = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.RESOLUTION))
-                val size = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE))
-                val title = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.TITLE))
-                val dateAdded = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_ADDED))
-                val dateModified = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_MODIFIED))
-                val mediaType = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MEDIA_TYPE))
+        cursor?.let {
+            it.use { cursor ->
+                while (cursor.moveToNext()) {
+                    val fileId =
+                        cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID))
+                    val fileName =
+                        cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME))
+                    val filePath =
+                        cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA))
+                    val bucketName =
+                        cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.BUCKET_DISPLAY_NAME))
+                    val bucketID =
+                        cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.BUCKET_ID))
+                    val mimeType =
+                        cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE))
+                    val resolution =
+                        cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.RESOLUTION))
+                    val size =
+                        cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE))
+                    val title =
+                        cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.TITLE))
+                    val dateAdded =
+                        cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_ADDED))
+                    val dateModified =
+                        cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_MODIFIED))
+                    val mediaType =
+                        cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MEDIA_TYPE))
 
-                var model = DataModel(
-                    title = title,
-                    fileId = fileId,
-                    fileName = fileName,
-                    filePath = filePath,
-                    size = size,
-                    bucketID = bucketID,
-                    mimeType =mimeType,
-                    dateAdded = dateAdded,
-                    dateModified = dateModified,
-                    bucketName = bucketName,
-                    resolutions = resolution,
-                    mediaType = mediaType,
-                )
+                    var model = DataModel(
+                        title = title,
+                        fileId = fileId,
+                        fileName = fileName,
+                        filePath = filePath,
+                        size = size,
+                        bucketID = bucketID,
+                        mimeType = mimeType,
+                        dateAdded = dateAdded,
+                        dateModified = dateModified,
+                        bucketName = bucketName,
+                        resolutions = resolution,
+                        mediaType = mediaType,
+                    )
 
 
-                if (dataMap.containsKey(bucketName)) {
-                    dataMap[bucketName]?.add(model)
-                } else {
-                    dataMap[bucketName] = mutableListOf(model)
+                    if (dataMap.containsKey(bucketName)) {
+                        dataMap[bucketName]?.add(model)
+                    } else {
+                        if(bucketName!=null) {
+                            dataMap[bucketName] = mutableListOf(model)
+                        }
+                    }
+
                 }
 
             }
-
         }
-
         return dataMap
     }
 }

@@ -77,6 +77,12 @@ dependencies {
     implementation(libs.material.icons.extended)
     implementation ("com.google.accompanist:accompanist-pager:0.13.0")
     implementation ("com.google.accompanist:accompanist-pager-indicators:0.13.0")
+    implementation ("com.github.bumptech.glide:compose:1.0.0-beta01")
+    val work_version = "2.9.0"
+
+    implementation("androidx.work:work-runtime-ktx:$work_version")
+    implementation ("androidx.work:work-runtime-ktx:2.7.1") // Update version if needed
+
 
 
 }

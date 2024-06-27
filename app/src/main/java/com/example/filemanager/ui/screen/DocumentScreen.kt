@@ -1,10 +1,12 @@
 package com.example.filemanager.ui.screen
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -45,6 +47,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.integration.compose.Placeholder
+import com.bumptech.glide.integration.compose.placeholder
 import com.example.filemanager.R
 import com.example.filemanager.ui.domain.model.DataModel
 import com.example.filemanager.ui.viewmodel.StorageViewModel
@@ -57,12 +63,17 @@ fun DocumentScreen(
 ) {
 
     val dataMap = storageViewModel.imageList.observeAsState()
-
-    var tabIndex = remember { mutableStateOf(0) }
+    val tabName = remember { mutableStateOf(dataMap.value!!.keys.first()) }
     val pagerState = rememberPagerState(pageCount = {
         dataMap.value?.size ?: 0
     })
-    var coroutineScope = rememberCoroutineScope()
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(key1 = pagerState) {
+        snapshotFlow { pagerState.currentPage }.collect { page ->
+            tabName.value = dataMap.value!!.keys.toList()[page]
+        }
+    }
 
 
 
@@ -93,22 +104,28 @@ fun DocumentScreen(
         ) {
             PrimaryScrollableTabRow(selectedTabIndex = pagerState.currentPage, divider = { }) {
 
-
-                dataMap.value!!.onEachIndexed { index, title ->
+                dataMap.value!!.keys.forEach { name ->
                     Tab(
-                        text = { Text("${index}") },
-                        selected = tabIndex.value == index,
+                        text = { Text(name) },
+                        selected = tabName.value == name,
                         onClick = {
-                            tabIndex.value = index
-                            coroutineScope.launch { pagerState.scrollToPage(index) }
+                            tabName.value = name
+                            coroutineScope.launch {
+                                pagerState.scrollToPage(
+                                    dataMap.value!!.keys.indexOf(
+                                        name
+                                    )
+                                )
+                            }
                         },
                     )
                 }
+
             }
             HorizontalPager(
-                state = pagerState
+                state = pagerState,
             ) {
-//                DisplayDocument(dataList = dataMap)
+                DisplayDocument(dataList = dataMap.value!![tabName.value]!!)
             }
 
         }
@@ -118,6 +135,7 @@ fun DocumentScreen(
 }
 
 
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun DisplayDocument(modifier: Modifier = Modifier, dataList: List<DataModel>) {
 
@@ -125,24 +143,26 @@ fun DisplayDocument(modifier: Modifier = Modifier, dataList: List<DataModel>) {
         columns = GridCells.Adaptive(100.dp),
         modifier = Modifier
             .padding(
-                top = 60.dp, start = 16.dp, end = 16.dp, bottom = 16.dp
+                top = 16.dp, start = 16.dp, end = 16.dp, bottom = 16.dp
             )
             .fillMaxWidth(),
     ) {
         items(items = dataList) {
-            AsyncImage(
-                placeholder = painterResource(id = R.drawable.ic_launcher_background),
-                model = ImageRequest.Builder(LocalContext.current).data(it.filePath).crossfade(true)
-                    .build(),
+
+            GlideImage(
+                model = it.filePath,
                 contentDescription = "",
                 modifier = Modifier
+                    .fillMaxSize()
                     .height(120.dp)
                     .width(100.dp)
                     .padding(4.dp),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
+                loading = placeholder(R.drawable.ic_launcher_background)
             )
 
         }
     }
 
 }
+
